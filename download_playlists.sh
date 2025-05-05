@@ -46,10 +46,7 @@ while IFS= read -r playlist_url || [[ -n "$playlist_url" ]]; do
         -q \
         --download-archive "$DOWNLOAD_DIR/archives/$(basename "$playlist_url" | sed 's/[^a-zA-Z0-9_-]/_/g').txt" \
         -o "$DOWNLOAD_DIR/%(playlist)s/%(title)s.%(ext)s" \
-        -x \
-        --audio-format mp3 \
-        --audio-quality 0 \
-        --format 'bestaudio/best' \
+        -t aac \
         --add-metadata \
         "$playlist_url"
 
