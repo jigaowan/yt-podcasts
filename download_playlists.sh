@@ -9,6 +9,14 @@ echo "----------------------------------------"
 echo "运行 yt-dlp 下载脚本于: $(date)"
 echo "----------------------------------------"
 
+# 确保存档目录存在
+# 使用 mkdir -p，如果目录已存在，则不会报错；如果不存在，则会创建它及其父目录
+mkdir -p "$DOWNLOAD_DIR/archives"
+if [ $? -ne 0 ]; then
+    echo "错误: 无法创建存档目录 $DOWNLOAD_DIR/archives !" >> "$LOG_FILE" 2>&1
+    exit 1
+fi
+
 # 检查列表文件是否存在
 if [ ! -f "$LIST_FILE" ]; then
     echo "错误: 播放列表文件 $LIST_FILE 未找到!"
@@ -36,10 +44,9 @@ while IFS= read -r playlist_url || [[ -n "$playlist_url" ]]; do
     # --playlist-items 1-5: (可选) 限制下载数量，用于测试
     yt-dlp \
         --download-archive "$DOWNLOAD_DIR/archives/$(basename "$playlist_url" | sed 's/[^a-zA-Z0-9_-]/_/g').txt" \
-        -o "$DOWNLOAD_DIR/%(playlist)s/%(playlist_index)s - %(title)s [%(id)s].%(ext)s" \
+        -o "$DOWNLOAD_DIR/%(playlist)s/%(title)s.%(ext)s" \
         --format 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best' \
         --add-metadata \
-        --no-overwrites \
         "$playlist_url"
 
     # 检查 yt-dlp 的退出状态

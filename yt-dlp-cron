@@ -1,1 +1,0 @@
-10 * * * * root /app/download_playlists.sh >> /var/log/cron.log 2>&1

@@ -2,14 +2,15 @@ version: "3.8"
 
 services:
   yt-dlp-downloader:
-    build: . # 指定使用当前目录下的 Dockerfile 构建镜像
+    build: .
     container_name: yt-dlp-periodic
-    restart: unless-stopped # 容器退出时自动重启，除非手动停止
+    restart: unless-stopped
     volumes:
-      - ./downloads:/downloads # 将本地的 downloads 目录映射到容器内的 /downloads
-      - ./list.txt:/app/list.txt:ro # 将本地的 list.txt 只读映射到容器内，方便修改列表而无需重建镜像
-      - ./logs:/var/log # (可选) 将容器内的日志目录映射到本地，方便查看 cron.log
+      - ./downloads:/downloads
+      - ./list.txt:/app/list.txt:ro
+      - ./logs:/var/log # Optional log mapping
     environment:
-      # 设置容器的时区，确保 cron 按预期时间运行
-      # 使用你的实际时区，例如 Asia/Shanghai, Europe/London, America/New_York
+      # Set container timezone
       - TZ=Asia/Singapore
+      # Define the cron schedule (e.g., every hour at minute 0)
+      - CRON_SCHEDULE=37 * * * *

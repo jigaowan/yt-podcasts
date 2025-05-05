@@ -1,11 +1,10 @@
-# 使用一个包含 Python 的轻量级 Linux 发行版作为基础镜像
+# Use a containing Python lightweight Linux distribution as base
 FROM python:3.11-slim-bookworm
 
-# 设置工作目录
+# Set working directory
 WORKDIR /app
 
-# 安装必要的依赖: yt-dlp, ffmpeg (用于合并音视频), cron (任务调度)
-# tzdata 用于正确设置时区，避免 cron 时间问题
+# Install necessary dependencies: yt-dlp, ffmpeg, cron, tzdata
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     cron \
@@ -14,30 +13,31 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# 使用 pip 安装最新版本的 yt-dlp
+# Install latest yt-dlp using pip
 RUN pip install --no-cache-dir -U yt-dlp
 
-# 创建下载目录
+# Create download directory
 RUN mkdir /downloads
 
-# 复制脚本和列表文件到容器中
+# Copy scripts and list file
 COPY download_playlists.sh .
-# COPY list.txt .
-COPY yt-dlp-cron /etc/cron.d/yt-dlp-cron
+COPY list.txt .
+COPY entrypoint.sh .
 
-# 赋予脚本执行权限
+# Grant execution permissions
 RUN chmod +x download_playlists.sh
+RUN chmod +x entrypoint.sh
 
-# 赋予 crontab 文件正确的权限和所有权
-RUN chmod 0644 /etc/cron.d/yt-dlp-cron && \
-    crontab /etc/cron.d/yt-dlp-cron
-
-# 创建 cron 日志文件，以便调试
+# RUN crontab /etc/cron.d/yt-dlp-cron
+# Create cron log file (moved to entrypoint, but keeping here doesn't hurt)
 RUN touch /var/log/cron.log
 
-# 定义挂载点，用于持久化存储下载的文件
+# Define mount point for persistent downloads
 VOLUME /downloads
 
-# 容器启动时运行 cron 服务，并在前台运行以保持容器活动
-# 同时输出 cron 日志到 stdout/stderr
-CMD cron && tail -f /var/log/cron.log
+# Set the entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+# Default command: Start cron service in foreground and tail the log
+# This command is passed to the entrypoint script via "$@"
+CMD ["cron", "&&", "tail", "-f", "/var/log/cron.log"]
