@@ -1,9 +1,9 @@
 version: "3.8"
 
 services:
-  yt-dlp-downloader:
-    build: .
-    container_name: yt-dlp-periodic
+  yt-podcasts:
+    image: ghcr.io/jigaowan/yt-podcasts:master
+    container_name: yt-podcasts
     restart: unless-stopped
     volumes:
       - ./downloads:/downloads
@@ -13,4 +13,4 @@ services:
       # Set container timezone
       - TZ=Asia/Singapore
       # Define the cron schedule (e.g., every hour at minute 0)
-      - CRON_SCHEDULE=37 * * * *
+      - CRON_SCHEDULE=37 4 * * *
