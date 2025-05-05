@@ -43,9 +43,13 @@ while IFS= read -r playlist_url || [[ -n "$playlist_url" ]]; do
     # --no-overwrites: 不覆盖已存在的文件 (虽然 archive 通常能处理好，但多一层保险)
     # --playlist-items 1-5: (可选) 限制下载数量，用于测试
     yt-dlp \
+        -q \
         --download-archive "$DOWNLOAD_DIR/archives/$(basename "$playlist_url" | sed 's/[^a-zA-Z0-9_-]/_/g').txt" \
         -o "$DOWNLOAD_DIR/%(playlist)s/%(title)s.%(ext)s" \
-        --format 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best' \
+        -x \
+        --audio-format mp3 \
+        --audio-quality 0 \
+        --format 'bestaudio/best' \
         --add-metadata \
         "$playlist_url"
 
